@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeFaster - Z2U Account Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #4a148c;
+            --secondary: #7b1fa2;
+            --accent: #e91e63;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://z2u.com/images/bg.jpg') no-repeat center center;
+            background-size: cover;
+        }
+
+        .login-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 5px solid var(--primary);
+        }
+
+        .login-form h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .login-logo {
+            width: 100px;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 20, 140, 0.2);
+        }
+
+        .login-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 31, 162, 0.4);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        .dashboard-title {
+            margin-bottom: 2rem;
+            color: var(--dark);
+            font-size: 1.8rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+        }
+
+        .notification-bell {
+            position: relative;
+            margin-right: 1.5rem;
+            cursor: pointer;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .boxes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .box {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .box-1 { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); }
+        .box-2 { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
+        .box-3 { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+        .box-4 { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); }
+        .box-5 { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); }
+        .box-6 { background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%); }
+        .box-7 { background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .box-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .box-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .box-content {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .box-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .check-mark {
+            color: var(--success);
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Modal for Excel Data */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .data-table td[contenteditable="true"] {
+            background-color: #fffacd; /* Light yellow for editable cells */
+        }
+
+        .data-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 1rem;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .file-upload {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-upload input[type="file"] {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* Platform Filter */
+        .platform-filter {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .platform-filter select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* Notifications */
+        .notifications-container {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 350px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: none;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #f9f9f9;
+        }
+
+        .notification-item.unread {
+            background: #f0f7ff;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 0.5rem;
+        }
+
+        /* Gmail Notification Style */
+        .gmail-notification {
+            border-left: 3px solid #d44638;
+            padding-left: 10px;
+        }
+
+        /* Checkbox for table rows */
+        .data-table input[type="checkbox"] {
+            margin-right: 5px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .platform-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .platform-dropdown-select {
+            /* Basic styling for consistency */
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .platform-icon {
+            vertical-align: middle;
+            width: 20px; /* Adjust as needed */
+            height: 20px; /* Adjust as needed */
+            margin-right: 5px;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .boxes-container {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            .user-info {
+                margin-top: 1rem;
+            }
+            
+            .modal-content {
+                padding: 1rem;
+                width: 95%;
+            }
+            
+            .data-actions {
+                flex-direction: column;
+            }
+            
+            .notifications-container {
+                width: 90%;
+                right: 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginPage">
+        <div class="login-form">
+            <img src="https://i.postimg.cc/D0M9d3CJ/ferrari-emblem-seeklogo.png" alt="TradeFaster Logo" class="login-logo">
+            <h2>TradeFaster Dashboard</h2>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+            <button class="login-btn" id="loginBtn">Login</button>
+            <p id="loginError" style="color: red; margin-top: 1rem; display: none;">Invalid username or password</p>
+        </div>
+    </div>
+    
+    <div class="dashboard" id="dashboard">
+        <header>
+            <div class="logo">
+                <img src="https://i.postimg.cc/D0M9d3CJ/ferrari-emblem-seeklogo.png" alt="TradeFaster Logo">
+                <span>TradeFaster Dashboard</span>
+            </div>
+            <div class="user-info">
+                <div class="notification-bell" id="notificationBell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <span id="loggedInUser">Admin</span>
+                <img src="https://i.postimg.cc/RC29Hw2P/FB-IMG-1654297624979.jpg" alt="User">
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+        
+        <main>
+            <h1 class="dashboard-title">Account Management Overview</h1>
+            
+            <div class="boxes-container">
+                <div class="box box-1" data-box="sold">
+                    <div class="box-header">
+                        <h2 class="box-title">Sold Accounts</h2>
+                        <i class="fas fa-check-circle box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Accounts sold on Z2U.com</p>
+                        <div class="box-number" id="soldCount">0</div>
+                        <p>Last updated: <span id="soldUpdateTime">Today</span></p>
+                    </div>
+                </div>
+                
+                <div class="box box-2" data-box="available">
+                    <div class="box-header">
+                        <h2 class="box-title">Available Accounts</h2>
+                        <i class="fas fa-database box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Accounts ready for sale</p>
+                        <div class="box-number" id="availableCount">0</div>
+                        <p>Last updated: <span id="availableUpdateTime">Today</span></p>
+                    </div>
+                </div>
+                
+                <div class="box box-3" data-box="snapchat">
+                    <div class="box-header">
+                        <h2 class="box-title">Snapchat Boosting</h2>
+                        <i class="fab fa-snapchat-ghost box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Active boosting orders</p>
+                        <div class="box-number" id="boostingCount">0</div>
+                        <p>Last updated: <span id="boostingUpdateTime">Today</span></p>
+                    </div>
+                </div>
+                
+                <div class="box box-4" data-box="instagram">
+                    <div class="box-header">
+                        <h2 class="box-title">Instagram Accounts</h2>
+                        <i class="fab fa-instagram box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Available and sold accounts</p>
+                        <div class="box-number" id="instagramCount">0</div>
+                        <p>Last updated: <span id="instagramUpdateTime">Today</span></p>
+                    </div>
+                </div>
+                
+                <div class="box box-5" data-box="tiktok">
+                    <div class="box-header">
+                        <h2 class="box-title">TikTok Accounts</h2>
+                        <i class="fab fa-tiktok box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Available and sold accounts</p>
+                        <div class="box-number" id="tiktokCount">0</div>
+                        <p>Last updated: <span id="tiktokUpdateTime">Today</span></p>
+                    </div>
+                </div>
+                
+                <div class="box box-6" data-box="orders">
+                    <div class="box-header">
+                        <h2 class="box-title">New Z2U Orders</h2>
+                        <i class="fas fa-shopping-cart box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Today's new orders</p>
+                        <div class="box-number" id="ordersCount">0</div>
+                        <p>Last updated: <span id="ordersUpdateTime">Today</span></p>
+                    </div>
+                </div>
+                
+                <div class="box box-7" data-box="clients">
+                    <div class="box-header">
+                        <h2 class="box-title">Client Details</h2>
+                        <i class="fas fa-users box-icon"></i>
+                    </div>
+                    <div class="box-content">
+                        <p>Active clients information</p>
+                        <div class="box-number" id="clientsCount">0</div>
+                        <p>Last updated: <span id="clientsUpdateTime">Today</span></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 TradeFaster - Z2U.com. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <div class="notifications-container" id="notificationsPanel">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button id="markAllRead" style="background: none; border: none; color: white; cursor: pointer;">
+                Mark All as Read
+            </button>
+        </div>
+        <div id="notificationsList">
+            </div>
+    </div>
+    
+    <div class="modal" id="dataModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Account Details</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="platform-filter">
+                <label for="platformSelect">Filter by Platform:</label>
+                <select id="platformSelect">
+                    <option value="all">All Platforms</option>
+                    <option value="Snapchat">Snapchat</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Twitter">Twitter</option>
+                </select>
+            </div>
+            
+            <div class="file-upload">
+                <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
+                <button class="btn btn-primary" id="uploadBtn">Upload Excel File</button>
+            </div>
+            
+            <table class="data-table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllAccounts"></th>
+                        <th>ID</th>
+                        <th>Platform</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Email</th>
+                        <th>Email Password</th>
+                        <th>Score/Followers</th>
+                        <th>Status</th>
+                        <th>Price</th>
+                        <th>Z2U Order ID</th>
+                        <th>Mark Sold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+                <tfoot>
+                    <tr id="priceSumRow">
+                        <td colspan="9" style="text-align: right; font-weight: bold;">Total Price:</td>
+                        <td id="totalPriceSum" style="font-weight: bold;">$0</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div class="data-actions">
+                <button class="btn btn-success" id="exportExcelBtn">Download as Excel</button>
+                <button class="btn btn-secondary" id="addRowBtn">Add New Record</button>
+                <button class="btn btn-danger" id="deleteSelectedBtn">Delete Selected</button>
+                <button class="btn btn-info" id="moveBackBtn" style="display: none;">Move Selected Back to Available</button>
+                <button class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Client Details</h2>
+                <button class="close-modal" id="closeClientModal">&times;</button>
+            </div>
+            
+            <table class="data-table" id="clientTable">
+                <thead>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Purchases</th>
+                        <th>Total Spent</th>
+                        <th>Last Purchase</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+            
+            <div class="data-actions">
+                <button class="btn btn-primary" id="closeClientBtn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Account Data
+        let accounts = [
+            { 
+                id: 1, 
+                platform: 'Snapchat', 
+                username: 'user1_snap', 
+                password: 'snap123', 
+                email: 'snap1@example.com', 
+                emailPassword: 'email123', 
+                score: 'Score: 1500', 
+                status: 'Available', 
+                price: '$50', 
+                orderId: '', 
+                sold: false 
+            },
+            { 
+                id: 2, 
+                platform: 'Snapchat', 
+                username: 'user2_snap', 
+                password: 'snap456', 
+                email: 'snap2@example.com', 
+                emailPassword: 'email456', 
+                score: 'Score: 1800', 
+                status: 'Available', 
+                price: '$52', 
+                orderId: '', 
+                sold: false 
+            },
+            { 
+                id: 3, 
+                platform: 'Instagram', 
+                username: 'user1_insta', 
+                password: 'insta123', 
+                email: 'insta1@example.com', 
+                emailPassword: 'email789', 
+                score: 'Followers: 10k', 
+                status: 'Available', 
+                price: '$80', 
+                orderId: '', 
+                sold: false 
+            },
+            { 
+                id: 4, 
+                platform: 'TikTok', 
+                username: 'user1_tiktok', 
+                password: 'tiktok123', 
+                email: 'tiktok1@example.com', 
+                emailPassword: 'email101', 
+                score: 'Followers: 50k', 
+                status: 'Available', 
+                price: '$60', 
+                orderId: '', 
+                sold: false 
+            }
+        ];
+
+        let soldAccounts = [];
+        let clients = [
+            { id: 1, name: 'John Doe', email: 'john@example.com', purchases: 3, totalSpent: '$186', lastPurchase: '2023-06-15' },
+            { id: 2, name: 'Jane Smith', email: 'jane@example.com', purchases: 5, totalSpent: '$295', lastPurchase: '2023-06-18' },
+            { id: 3, name: 'Mike Johnson', email: 'mike@example.com', purchases: 2, totalSpent: '$110', lastPurchase: '2023-06-10' }
+        ];
+        let notifications = [];
+        let lastNotificationCheck = new Date();
+
+        // Platform icons for dropdown
+        const platformIcons = {
+            'Snapchat': 'https://upload.wikimedia.org/wikipedia/en/thumb/archive/a/ad/20210217035311%21Snapchat_logo.svg/1200px-Snapchat_logo.svg.png',
+            'Instagram': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/768px-Instagram_logo_2016.svg.png',
+            'TikTok': 'https://cdn.pixabay.com/photo/2021/01/29/13/21/tiktok-5961448_1280.png',
+            'Facebook': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Facebook_icon.svg/2048px-Facebook_icon.svg.png',
+            'Twitter': 'https://help.twitter.com/content/dam/help-twitter/brand/logo.png',
+            'Other': '' // For platforms not specifically listed
+        };
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('tradeFasterAccounts', JSON.stringify(accounts));
+            localStorage.setItem('tradeFasterSoldAccounts', JSON.stringify(soldAccounts));
+            localStorage.setItem('tradeFasterClients', JSON.stringify(clients));
+        }
+
+        // Load data from localStorage
+        function loadDataFromStorage() {
+            const savedAccounts = localStorage.getItem('tradeFasterAccounts');
+            const savedSoldAccounts = localStorage.getItem('tradeFasterSoldAccounts');
+            const savedClients = localStorage.getItem('tradeFasterClients');
+            
+            if (savedAccounts) accounts = JSON.parse(savedAccounts);
+            if (savedSoldAccounts) soldAccounts = JSON.parse(savedSoldAccounts);
+            if (savedClients) clients = JSON.parse(savedClients);
+        }
+
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const dashboard = document.getElementById('dashboard');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loggedInUser = document.getElementById('loggedInUser');
+        const loginError = document.getElementById('loginError');
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationsPanel = document.getElementById('notificationsPanel');
+        const notificationsList = document.getElementById('notificationsList');
+        const notificationCount = document.getElementById('notificationCount');
+        const markAllReadBtn = document.getElementById('markAllRead');
+        const boxes = document.querySelectorAll('.box');
+        const modal = document.getElementById('dataModal');
+        const clientModal = document.getElementById('clientModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeClientModal = document.getElementById('closeClientModal');
+        const closeClientBtn = document.getElementById('closeClientBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const platformSelect = document.getElementById('platformSelect');
+        const dataTable = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+        const clientTable = document.getElementById('clientTable').getElementsByTagName('tbody')[0];
+        const excelFileInput = document.getElementById('excelFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const exportExcelBtn = document.getElementById('exportExcelBtn');
+        const addRowBtn = document.getElementById('addRowBtn');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        const saveChangesBtn = document.getElementById('saveChangesBtn');
+        const selectAllAccountsCheckbox = document.getElementById('selectAllAccounts');
+        const moveBackBtn = document.getElementById('moveBackBtn');
+        const totalPriceSum = document.getElementById('totalPriceSum');
+
+        // Count Elements
+        const soldCount = document.getElementById('soldCount');
+        const availableCount = document.getElementById('availableCount');
+        const boostingCount = document.getElementById('boostingCount');
+        const instagramCount = document.getElementById('instagramCount');
+        const tiktokCount = document.getElementById('tiktokCount');
+        const ordersCount = document.getElementById('ordersCount');
+        const clientsCount = document.getElementById('clientsCount');
+
+        // Load data from storage when page loads
+        loadDataFromStorage();
+        updateCounts();
+
+        // Login Functionality
+        loginBtn.addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if(username === "admin" && password === "$1234Umar12") {
+                loginError.style.display = 'none';
+                loginPage.style.display = 'none';
+                dashboard.style.display = 'grid';
+                loggedInUser.textContent = username;
+                
+                // Initialize dashboard
+                updateCounts();
+                checkZ2UNotifications();
+                loadClientData();
+                
+                // Simulate receiving a Z2U order notification after 5 seconds
+                setTimeout(() => {
+                    addNotification("New Z2U Order #12345: Snapchat Account (Score: 1500)", "z2u");
+                }, 5000);
+                
+                // Simulate receiving a Gmail notification after 8 seconds
+                setTimeout(() => {
+                    addNotification("New order from john@example.com for Instagram account", "gmail");
+                }, 8000);
+            } else {
+                loginError.style.display = 'block';
+            }
+        });
+        
+        // Logout Functionality
+        logoutBtn.addEventListener('click', function() {
+            // Save data before logging out
+            saveData();
+            dashboard.style.display = 'none';
+            loginPage.style.display = 'flex';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        });
+        
+        // Save data when window is closed or refreshed
+        window.addEventListener('beforeunload', function() {
+            saveData();
+        });
+
+        // Notification Bell Functionality
+        notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationsPanel.style.display = notificationsPanel.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Close notifications when clicking outside
+        document.addEventListener('click', function() {
+            notificationsPanel.style.display = 'none';
+        });
+        
+        notificationsPanel.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // Mark all notifications as read
+        markAllReadBtn.addEventListener('click', function() {
+            notifications.forEach(notification => notification.read = true);
+            updateNotificationCount();
+            renderNotifications();
+        });
+        
+        // Box Click Functionality
+        boxes.forEach(box => {
+            box.addEventListener('click', function() {
+                const boxType = this.getAttribute('data-box');
+                
+                if (boxType === 'clients') {
+                    clientModal.style.display = 'flex';
+                    return;
+                }
+                
+                let title = '';
+                
+                switch(boxType) {
+                    case 'sold':
+                        title = 'Sold Accounts';
+                        moveBackBtn.style.display = 'inline-block'; // Show move back button for sold accounts
+                        break;
+                    case 'available':
+                        title = 'Available Accounts';
+                        moveBackBtn.style.display = 'none'; // Hide move back button for available accounts
+                        break;
+                    case 'snapchat':
+                        title = 'Snapchat Accounts';
+                        moveBackBtn.style.display = 'none';
+                        break;
+                    case 'instagram':
+                        title = 'Instagram Accounts';
+                        moveBackBtn.style.display = 'none';
+                        break;
+                    case 'tiktok':
+                        title = 'TikTok Accounts';
+                        moveBackBtn.style.display = 'none';
+                        break;
+                    case 'orders':
+                        title = 'Z2U New Orders';
+                        moveBackBtn.style.display = 'none';
+                        break;
+                    default:
+                        title = 'Account Details';
+                        moveBackBtn.style.display = 'none';
+                }
+                
+                modalTitle.textContent = title;
+                modal.style.display = 'flex';
+                
+                // Load appropriate data
+                loadData(boxType);
+            });
+        });
+        
+        // Platform filter change
+        platformSelect.addEventListener('change', function() {
+            // Determine current box type from modal title
+            let currentBoxType;
+            if (modalTitle.textContent.includes('Sold Accounts')) {
+                currentBoxType = 'sold';
+            } else if (modalTitle.textContent.includes('Available Accounts')) {
+                currentBoxType = 'available';
+            } else if (modalTitle.textContent.includes('Snapchat Accounts')) {
+                currentBoxType = 'snapchat';
+            } else if (modalTitle.textContent.includes('Instagram Accounts')) {
+                currentBoxType = 'instagram';
+            } else if (modalTitle.textContent.includes('TikTok Accounts')) {
+                currentBoxType = 'tiktok';
+            } else if (modalTitle.textContent.includes('New Orders')) {
+                currentBoxType = 'orders';
+            } else {
+                currentBoxType = 'available'; // Default
+            }
+
+            loadData(currentBoxType);
+        });
+        
+        // Close Modals
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+            saveChanges(); // Auto-save when closing modal
+        });
+        
+        closeClientModal.addEventListener('click', function() {
+            clientModal.style.display = 'none';
+        });
+        
+        closeClientBtn.addEventListener('click', function() {
+            clientModal.style.display = 'none';
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if(event.target === modal) {
+                modal.style.display = 'none';
+                saveChanges(); // Auto-save when closing modal by clicking outside
+            }
+            if(event.target === clientModal) {
+                clientModal.style.display = 'none';
+            }
+        });
+        
+        // Update counts on the dashboard
+        function updateCounts() {
+            // Available accounts (not sold)
+            const availableAccounts = accounts.filter(account => !account.sold);
+            availableCount.textContent = availableAccounts.length;
+            
+            // Sold accounts
+            soldCount.textContent = soldAccounts.length;
+            
+            // Count by platform (example counts)
+            boostingCount.textContent = accounts.filter(a => a.platform === 'Snapchat' && !a.sold).length;
+            instagramCount.textContent = accounts.filter(a => a.platform === 'Instagram' && !a.sold).length;
+            tiktokCount.textContent = accounts.filter(a => a.platform === 'TikTok' && !a.sold).length;
+            
+            // New orders (from notifications)
+            const newOrders = notifications.filter(n => n.text.includes('Z2U Order')).length;
+            ordersCount.textContent = newOrders;
+            
+            // Clients count
+            clientsCount.textContent = clients.length;
+        }
+        
+        // Load data into modal table
+        function loadData(type) {
+            dataTable.innerHTML = '';
+            selectAllAccountsCheckbox.checked = false; // Uncheck select all on reload
+            
+            let dataToShow = [];
+            const platformFilter = platformSelect.value;
+            
+            switch(type) {
+                case 'sold':
+                    dataToShow = soldAccounts;
+                    moveBackBtn.style.display = 'inline-block';
+                    break;
+                case 'available':
+                    dataToShow = accounts.filter(account => !account.sold);
+                    moveBackBtn.style.display = 'none';
+                    break;
+                case 'snapchat':
+                    dataToShow = accounts.filter(account => account.platform === 'Snapchat');
+                    moveBackBtn.style.display = 'none';
+                    break;
+                case 'instagram':
+                    dataToShow = accounts.filter(account => account.platform === 'Instagram');
+                    moveBackBtn.style.display = 'none';
+                    break;
+                case 'tiktok':
+                    dataToShow = accounts.filter(account => account.platform === 'TikTok');
+                    moveBackBtn.style.display = 'none';
+                    break;
+                case 'orders':
+                    dataToShow = accounts.filter(account => account.orderId !== ''); // This should ideally be a separate dataset of orders
+                    moveBackBtn.style.display = 'none';
+                    break;
+                default:
+                    dataToShow = accounts;
+                    moveBackBtn.style.display = 'none';
+            }
+            
+            // Apply platform filter if not "all"
+            if (platformFilter !== 'all') {
+                dataToShow = dataToShow.filter(account => account.platform === platformFilter);
+            }
+
+            let currentTotalPrice = 0;
+            
+            dataToShow.forEach(item => {
+                const row = document.createElement('tr');
+                row.dataset.id = item.id;
+                
+                const platformDropdownHTML = `
+                    <select class="platform-dropdown-select">
+                        <option value="Snapchat" ${item.platform === 'Snapchat' ? 'selected' : ''}>Snapchat</option>
+                        <option value="Instagram" ${item.platform === 'Instagram' ? 'selected' : ''}>Instagram</option>
+                        <option value="TikTok" ${item.platform === 'TikTok' ? 'selected' : ''}>TikTok</option>
+                        <option value="Facebook" ${item.platform === 'Facebook' ? 'selected' : ''}>Facebook</option>
+                        <option value="Twitter" ${item.platform === 'Twitter' ? 'selected' : ''}>Twitter</option>
+                        <option value="Other" ${!Object.keys(platformIcons).includes(item.platform) && item.platform !== '' ? 'selected' : ''}>Other</option>
+                    </select>
+                `;
+
+                // Only show check mark for available accounts to mark as sold
+                const checkMarkCell = item.sold ? 
+                    `<td><i class="fas fa-check-circle check-mark" style="color: var(--success)"></i></td>` : 
+                    `<td><i class="far fa-check-circle check-mark" data-id="${item.id}"></i></td>`;
+                
+                row.innerHTML = `
+                    <td><input type="checkbox" class="row-checkbox"></td>
+                    <td>${item.id}</td>
+                    <td>${platformDropdownHTML}</td>
+                    <td contenteditable="true">${item.username}</td>
+                    <td contenteditable="true">${item.password}</td>
+                    <td contenteditable="true">${item.email}</td>
+                    <td contenteditable="true">${item.emailPassword}</td>
+                    <td contenteditable="true">${item.score}</td>
+                    <td contenteditable="true">${item.status}</td>
+                    <td contenteditable="true">${item.price}</td>
+                    <td contenteditable="true">${item.orderId}</td>
+                    ${checkMarkCell}
+                `;
+                dataTable.appendChild(row);
+
+                // Calculate total price
+                const priceValue = parseFloat(item.price.replace(/[^0-9.-]+/g,""));
+                if (!isNaN(priceValue)) {
+                    currentTotalPrice += priceValue;
+                }
+            });
+
+            totalPriceSum.textContent = `$${currentTotalPrice.toFixed(2)}`;
+            
+            // Add event listeners to check marks
+            document.querySelectorAll('.check-mark').forEach(check => {
+                check.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const accountId = parseInt(this.getAttribute('data-id'));
+                    markAsSold(accountId);
+                });
+            });
+
+            // Add change listener to editable cells for auto-save
+            dataTable.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
+                cell.addEventListener('blur', saveChanges);
+            });
+
+            // Add change listener to platform dropdowns
+            dataTable.querySelectorAll('.platform-dropdown-select').forEach(select => {
+                select.addEventListener('change', saveChanges);
+            });
+        }
+        
+        // Load client data into client modal
+        function loadClientData() {
+            clientTable.innerHTML = '';
+            
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${client.id}</td>
+                    <td>${client.name}</td>
+                    <td>${client.email}</td>
+                    <td>${client.purchases}</td>
+                    <td>${client.totalSpent}</td>
+                    <td>${client.lastPurchase}</td>
+                `;
+                clientTable.appendChild(row);
+            });
+        }
+        
+        // Mark account as sold
+        function markAsSold(accountId) {
+            const accountIndex = accounts.findIndex(a => a.id === accountId);
+            
+            if (accountIndex !== -1) {
+                // Update the account
+                accounts[accountIndex].sold = true;
+                accounts[accountIndex].status = 'Sold';
+                
+                // Move to sold accounts
+                soldAccounts.push(accounts[accountIndex]);
+                accounts = accounts.filter(a => a.id !== accountId);
+                
+                // Save changes
+                saveData();
+                
+                // Update UI - reload available accounts
+                loadData('available');
+                updateCounts();
+                
+                // Show confirmation
+                alert('Account marked as sold and moved to Sold Accounts');
+            }
+        }
+
+        // Add new account
+        addRowBtn.addEventListener('click', function() {
+            const allAccounts = [...accounts, ...soldAccounts];
+            const newId = allAccounts.length > 0 ? Math.max(...allAccounts.map(a => a.id)) + 1 : 1;
+            const newRow = document.createElement('tr');
+            newRow.dataset.id = newId;
+            newRow.innerHTML = `
+                <td><input type="checkbox" class="row-checkbox"></td>
+                <td>${newId}</td>
+                <td>
+                    <select class="platform-dropdown-select">
+                        <option value="Snapchat">Snapchat</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Twitter">Twitter</option>
+                        <option value="Other" selected>Other</option>
+                    </select>
+                </td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true"></td>
+                <td contenteditable="true">Available</td>
+                <td contenteditable="true">$0</td>
+                <td contenteditable="true"></td>
+                <td><i class="far fa-check-circle check-mark" data-id="${newId}"></i></td>
+            `;
+            dataTable.appendChild(newRow);
+            
+            // Add event listener to the new check mark
+            newRow.querySelector('.check-mark').addEventListener('click', function(e) {
+                e.stopPropagation();
+                markAsSold(newId);
+            });
+
+            // Add change listener to new editable cells and dropdown
+            newRow.querySelectorAll('td[contenteditable="true"]').forEach(cell => {
+                cell.addEventListener('blur', saveChanges);
+            });
+            newRow.querySelector('.platform-dropdown-select').addEventListener('change', saveChanges);
+
+            // Add the new account to the 'accounts' array
+            accounts.push({
+                id: newId,
+                platform: 'Other', // Default platform
+                username: '',
+                password: '',
+                email: '',
+                emailPassword: '',
+                score: '',
+                status: 'Available',
+                price: '$0',
+                orderId: '',
+                sold: false
+            });
+            saveData(); // Save data immediately after adding a new row
+            updateCounts();
+        });
+        
+        // Save changes from the table
+        function saveChanges() {
+            // Get all rows from the table currently displayed in the modal
+            const rows = dataTable.querySelectorAll('tr');
+            const updatedAllAccounts = [];
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const accountId = parseInt(row.dataset.id);
+
+                // Get platform from select dropdown
+                const platformSelectElement = cells[2].querySelector('.platform-dropdown-select');
+                const platform = platformSelectElement ? platformSelectElement.value : cells[2].textContent;
+                
+                const accountData = {
+                    id: accountId,
+                    platform: platform,
+                    username: cells[3].textContent,
+                    password: cells[4].textContent,
+                    email: cells[5].textContent,
+                    emailPassword: cells[6].textContent,
+                    score: cells[7].textContent,
+                    status: cells[8].textContent,
+                    price: cells[9].textContent,
+                    orderId: cells[10].textContent,
+                    sold: cells[11].querySelector('.fas') !== null // Check if it has the solid check mark
+                };
+                
+                updatedAllAccounts.push(accountData);
+            });
+            
+            // Re-categorize into accounts and soldAccounts
+            accounts = updatedAllAccounts.filter(account => account.status === 'Available' && !account.sold);
+            soldAccounts = updatedAllAccounts.filter(account => account.status === 'Sold' || account.sold); // Also include if 'sold' flag is true
+            
+            // Ensure unique IDs (re-assigning IDs if any duplicates arise from manual edits, though auto-increment should prevent this for new adds)
+            let maxId = 0;
+            const uniqueAccounts = {};
+            [...accounts, ...soldAccounts].forEach(acc => {
+                if (!uniqueAccounts[acc.id]) {
+                    uniqueAccounts[acc.id] = acc;
+                } else {
+                    // Handle potential ID collision if manually edited to a duplicate, assign new ID
+                    acc.id = Math.max(...[...accounts, ...soldAccounts].map(a => a.id)) + 1;
+                    uniqueAccounts[acc.id] = acc;
+                }
+                if (acc.id > maxId) maxId = acc.id;
+            });
+            accounts = Object.values(uniqueAccounts).filter(account => account.status === 'Available' && !account.sold);
+            soldAccounts = Object.values(uniqueAccounts).filter(account => account.status === 'Sold' || account.sold);
+
+            // Save to localStorage
+            saveData();
+            
+            // Update UI
+            updateCounts();
+            // Re-load data in case of status changes or filtering
+            let currentBoxType;
+            if (modalTitle.textContent.includes('Sold Accounts')) {
+                currentBoxType = 'sold';
+            } else if (modalTitle.textContent.includes('Available Accounts')) {
+                currentBoxType = 'available';
+            } else {
+                currentBoxType = 'all'; // Default to all if not specific modal
+            }
+            loadData(currentBoxType); // Reload table with updated data
+        }
+
+        // Event listener for Save Changes button
+        saveChangesBtn.addEventListener('click', function() {
+            saveChanges();
+            alert('Changes saved successfully!');
+        });
+        
+        // Select All Checkbox functionality
+        selectAllAccountsCheckbox.addEventListener('change', function() {
+            const checkboxes = dataTable.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // Delete Selected Rows
+        deleteSelectedBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(dataTable.querySelectorAll('.row-checkbox:checked'))
+                                   .map(checkbox => parseInt(checkbox.closest('tr').dataset.id));
+            
+            if (selectedIds.length === 0) {
+                alert('Please select at least one record to delete.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete ${selectedIds.length} selected record(s)?`)) {
+                // Filter out deleted accounts from both arrays
+                accounts = accounts.filter(account => !selectedIds.includes(account.id));
+                soldAccounts = soldAccounts.filter(account => !selectedIds.includes(account.id));
+                
+                saveData();
+                updateCounts();
+                // Determine current box type from modal title
+                let currentBoxType;
+                if (modalTitle.textContent.includes('Sold Accounts')) {
+                    currentBoxType = 'sold';
+                } else if (modalTitle.textContent.includes('Available Accounts')) {
+                    currentBoxType = 'available';
+                } else {
+                    currentBoxType = 'all'; // Default
+                }
+                loadData(currentBoxType);
+                alert('Selected records deleted successfully!');
+            }
+        });
+
+        // Move Selected Back to Available (for Sold Accounts modal)
+        moveBackBtn.addEventListener('click', function() {
+            const selectedIds = Array.from(dataTable.querySelectorAll('.row-checkbox:checked'))
+                                   .map(checkbox => parseInt(checkbox.closest('tr').dataset.id));
+            
+            if (selectedIds.length === 0) {
+                alert('Please select at least one sold account to move back.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to move ${selectedIds.length} sold account(s) back to available?`)) {
+                selectedIds.forEach(id => {
+                    const soldIndex = soldAccounts.findIndex(a => a.id === id);
+                    if (soldIndex !== -1) {
+                        const accountToMove = soldAccounts[soldIndex];
+                        accountToMove.sold = false;
+                        accountToMove.status = 'Available';
+                        accounts.push(accountToMove); // Add back to available
+                        soldAccounts.splice(soldIndex, 1); // Remove from sold
+                    }
+                });
+                
+                saveData();
+                updateCounts();
+                loadData('sold'); // Reload sold accounts
+                alert('Selected accounts moved back to Available.');
+            }
+        });
+
+        // Excel file upload
+        uploadBtn.addEventListener('click', function() {
+            const file = excelFileInput.files[0];
+            if (!file) {
+                alert('Please select an Excel file first');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Get the first worksheet
+                const worksheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[worksheetName];
+                
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Process the imported data
+                if (jsonData.length > 0) {
+                    // Clear existing accounts
+                    accounts = [];
+                    soldAccounts = [];
+                    
+                    // Add new accounts from Excel
+                    jsonData.forEach((row) => {
+                        const newAccount = {
+                            id: row.ID || (accounts.length + soldAccounts.length + 1), // Use existing ID or generate new
+                            platform: row.Platform || '',
+                            username: row.Username || '',
+                            password: row.Password || '',
+                            email: row.Email || '',
+                            emailPassword: row['Email Password'] || '',
+                            score: row['Score/Followers'] || '',
+                            status: row.Status || 'Available',
+                            price: row.Price || '$0',
+                            orderId: row['Z2U Order ID'] || '',
+                            sold: (row.Status === 'Sold' || row.Sold === true) // Check both 'Status' and 'Sold' column from Excel
+                        };
+                        
+                        if (newAccount.sold) {
+                            soldAccounts.push(newAccount);
+                        } else {
+                            accounts.push(newAccount);
+                        }
+                    });
+                    
+                    // Save to localStorage
+                    saveData();
+                    
+                    // Update UI
+                    // Determine current box type from modal title
+                    let currentBoxType;
+                    if (modalTitle.textContent.includes('Sold Accounts')) {
+                        currentBoxType = 'sold';
+                    } else if (modalTitle.textContent.includes('Available Accounts')) {
+                        currentBoxType = 'available';
+                    } else {
+                        currentBoxType = 'all'; // Default
+                    }
+                    loadData(currentBoxType);
+                    updateCounts();
+                    
+                    alert('Excel file imported successfully!');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        // Export to Excel
+        exportExcelBtn.addEventListener('click', function() {
+            // Combine available and sold accounts
+            const allAccounts = [...accounts, ...soldAccounts];
+            
+            // Prepare data for export
+            const exportData = allAccounts.map(account => ({
+                'ID': account.id,
+                'Platform': account.platform,
+                'Username': account.username,
+                'Password': account.password,
+                'Email': account.email,
+                'Email Password': account.emailPassword,
+                'Score/Followers': account.score,
+                'Status': account.status,
+                'Price': account.price,
+                'Z2U Order ID': account.orderId
+            }));
+
+            // Calculate total price for export
+            const total = exportData.reduce((sum, item) => {
+                const priceValue = parseFloat(item.Price.replace(/[^0-9.-]+/g,""));
+                return sum + (isNaN(priceValue) ? 0 : priceValue);
+            }, 0);
+            exportData.push({'Price': `Total: $${total.toFixed(2)}`}); // Add total row
+
+
+            // Create worksheet
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            
+            // Create workbook
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Accounts');
+            
+            // Export to Excel file
+            XLSX.writeFile(workbook, 'TradeFaster_Accounts.xlsx');
+        });
+        
+        // Check for Z2U notifications (simulated)
+        function checkZ2UNotifications() {
+            // In a real app, this would check your email or Z2U API
+            console.log('Checking for Z2U notifications...');
+            
+            // Simulate receiving a notification every 30 seconds
+            setInterval(() => {
+                const now = new Date();
+                if (now - lastNotificationCheck > 30000) { // 30 seconds
+                    lastNotificationCheck = now;
+                    addNotification("New Z2U Order #" + Math.floor(10000 + Math.random() * 90000) + 
+                                    ": " + ["Snapchat", "Instagram", "TikTok"][Math.floor(Math.random() * 3)] + 
+                                    " Account", "z2u");
+                }
+            }, 5000); // Check every 5 seconds
+        }
+        
+        // Add a new notification
+        function addNotification(text, type = "system") {
+            const notification = {
+                id: notifications.length + 1,
+                text: text,
+                time: new Date(),
+                read: false,
+                type: type
+            };
+            
+            notifications.unshift(notification);
+            
+            updateNotificationCount();
+            renderNotifications();
+            
+            // If this is a Z2U order, update orders count
+            if (text.includes('Z2U Order')) {
+                updateCounts();
+            }
+        }
+        
+        // Update notification count
+        function updateNotificationCount() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            notificationCount.textContent = unreadCount;
+            
+            // Update orders count if notification is about an order
+            if (unreadCount > 0) {
+                const orderNotifications = notifications.filter(n => n.text.includes('Z2U Order')).length;
+                ordersCount.textContent = orderNotifications;
+            }
+        }
+        
+        // Render notifications list
+        function renderNotifications() {
+            notificationsList.innerHTML = '';
+            
+            notifications.forEach(notification => {
+                const notificationItem = document.createElement('div');
+                notificationItem.className = `notification-item ${notification.read ? '' : 'unread'} ${notification.type === 'gmail' ? 'gmail-notification' : ''}`;
+                notificationItem.innerHTML = `
+                    <div class="notification-text">${notification.text}</div>
+                    <div class="notification-time">${formatTime(notification.time)}</div>
+                    ${notification.type === 'gmail' ? '<div class="gmail-label" style="color: #d44638; font-size: 0.7rem; margin-top: 5px;">Gmail</div>' : ''}
+                `;
+                
+                notificationItem.addEventListener('click', () => {
+                    notification.read = true;
+                    updateNotificationCount();
+                    renderNotifications();
+                });
+                
+                notificationsList.appendChild(notificationItem);
+            });
+        }
+        
+        // Format time for notifications
+        function formatTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} minutes ago`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} hours ago`;
+            return `${Math.floor(diff / 86400000)} days ago`;
+        }
+    </script>
+
+<script type="module"> 
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyA2MJL-fbNJbKwhNpHJagbiu-ie_CI7Q4I",
+    authDomain: "tradefasterdashboard.firebaseapp.com",
+    projectId: "tradefasterdashboard",
+    storageBucket: "tradefasterdashboard.firebasestorage.app",
+    messagingSenderId: "132317808106",
+    appId: "1:132317808106:web:6e82851dad292e34001e93",
+    measurementId: "G-W3GKM2EL3B"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+</body>
+</html>
