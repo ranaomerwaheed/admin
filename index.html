@@ -850,31 +850,37 @@
 
         // Platform icons for dropdown
         const platformIcons = {
-            'Snapchat': 'https://upload.wikimedia.org/wikipedia/en/thumb/archive/a/ad/20210217035311%21Snapchat_logo.svg/1200px-Snapchat_logo.svg.png',
-            'Instagram': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/768px-Instagram_logo_2016.svg.png',
-            'TikTok': 'https://cdn.pixabay.com/photo/2021/01/29/13/21/tiktok-5961448_1280.png',
-            'Facebook': 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Facebook_icon.svg/2048px-Facebook_icon.svg.png',
-            'Twitter': 'https://help.twitter.com/content/dam/help-twitter/brand/logo.png',
+            'Snapchat': 'https://i.postimg.cc/XqbDzdcs/snapchat.png',
+            'Instagram': 'https://i.postimg.cc/66rPGbtg/instagram.png',
+            'TikTok': 'https://i.postimg.cc/PqfZmvQL/vecteezy-tiktok-logo-png-tiktok-logo-transparent-png-tiktok-icon-23986921.png',
+            'Facebook': 'https://i.postimg.cc/HsYQvrmB/icons8-facebook-512.png',
+            'Twitter': 'https://i.postimg.cc/zG3T54Vh/icons8-x-512.png',
             'Other': '' // For platforms not specifically listed
         };
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('tradeFasterAccounts', JSON.stringify(accounts));
-            localStorage.setItem('tradeFasterSoldAccounts', JSON.stringify(soldAccounts));
-            localStorage.setItem('tradeFasterClients', JSON.stringify(clients));
-        }
+       // ✅ Save data to Firebase
+function saveDataOnline() {
+    set(ref(db, 'accounts'), accounts);
+    set(ref(db, 'soldAccounts'), soldAccounts);
+    set(ref(db, 'clients'), clients);
+}
 
-        // Load data from localStorage
-        function loadDataFromStorage() {
-            const savedAccounts = localStorage.getItem('tradeFasterAccounts');
-            const savedSoldAccounts = localStorage.getItem('tradeFasterSoldAccounts');
-            const savedClients = localStorage.getItem('tradeFasterClients');
-            
-            if (savedAccounts) accounts = JSON.parse(savedAccounts);
-            if (savedSoldAccounts) soldAccounts = JSON.parse(savedSoldAccounts);
-            if (savedClients) clients = JSON.parse(savedClients);
-        }
+// ✅ Load data from Firebase
+async function loadDataOnline() {
+    const dbRef = ref(db);
+
+    const accSnap = await get(child(dbRef, 'accounts'));
+    if (accSnap.exists()) accounts = accSnap.val();
+
+    const soldSnap = await get(child(dbRef, 'soldAccounts'));
+    if (soldSnap.exists()) soldAccounts = soldSnap.val();
+
+    const clientSnap = await get(child(dbRef, 'clients'));
+    if (clientSnap.exists()) clients = clientSnap.val();
+
+    updateCounts(); // UI ko refresh karega
+}
+
 
         // DOM Elements
         const loginPage = document.getElementById('loginPage');
