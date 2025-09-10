@@ -676,7 +676,7 @@
         </main>
         
         <footer>
-            <p>&copy; 2023 TradeFaster - Z2U.com. All rights reserved.</p>
+            <p>&copy; 2025 TradeFaster - Z2U.com. All rights reserved.</p>
         </footer>
     </div>
     
@@ -923,9 +923,10 @@ async function loadDataOnline() {
         const ordersCount = document.getElementById('ordersCount');
         const clientsCount = document.getElementById('clientsCount');
 
-        // Load data from storage when page loads
-        loadDataFromStorage();
-        updateCounts();
+       // Load data from Firebase when page loads
+loadDataOnline();
+updateCounts();
+
 
         // Login Functionality
         loginBtn.addEventListener('click', function() {
@@ -959,18 +960,18 @@ async function loadDataOnline() {
         
         // Logout Functionality
         logoutBtn.addEventListener('click', function() {
-            // Save data before logging out
-            saveData();
-            dashboard.style.display = 'none';
-            loginPage.style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        });
-        
-        // Save data when window is closed or refreshed
-        window.addEventListener('beforeunload', function() {
-            saveData();
-        });
+        // Save data before logging out
+saveDataOnline();   // ✅ Firebase
+dashboard.style.display = 'none';
+loginPage.style.display = 'flex';
+document.getElementById('username').value = '';
+document.getElementById('password').value = '';
+});
+
+// Save data when window is closed or refreshed
+window.addEventListener('beforeunload', function() {
+    saveDataOnline();   // ✅ Firebase
+});
 
         // Notification Bell Functionality
         notificationBell.addEventListener('click', function(e) {
@@ -1256,12 +1257,12 @@ async function loadDataOnline() {
                 accounts = accounts.filter(a => a.id !== accountId);
                 
                 // Save changes
-                saveData();
-                
-                // Update UI - reload available accounts
-                loadData('available');
-                updateCounts();
-                
+saveDataOnline();   // ✅ ab Firebase me save karega
+
+// Update UI - reload available accounts
+loadData('available');
+updateCounts();
+
                 // Show confirmation
                 alert('Account marked as sold and moved to Sold Accounts');
             }
@@ -1324,9 +1325,9 @@ async function loadDataOnline() {
                 orderId: '',
                 sold: false
             });
-            saveData(); // Save data immediately after adding a new row
-            updateCounts();
-        });
+            saveDataOnline(); // ✅ Save data immediately to Firebase
+updateCounts();
+
         
         // Save changes from the table
         function saveChanges() {
@@ -1379,28 +1380,22 @@ async function loadDataOnline() {
             accounts = Object.values(uniqueAccounts).filter(account => account.status === 'Available' && !account.sold);
             soldAccounts = Object.values(uniqueAccounts).filter(account => account.status === 'Sold' || account.sold);
 
-            // Save to localStorage
-            saveData();
-            
-            // Update UI
-            updateCounts();
-            // Re-load data in case of status changes or filtering
-            let currentBoxType;
-            if (modalTitle.textContent.includes('Sold Accounts')) {
-                currentBoxType = 'sold';
-            } else if (modalTitle.textContent.includes('Available Accounts')) {
-                currentBoxType = 'available';
-            } else {
-                currentBoxType = 'all'; // Default to all if not specific modal
-            }
-            loadData(currentBoxType); // Reload table with updated data
-        }
+            // Save to Firebase
+saveDataOnline();   // ✅ ab localStorage ke bajaye Firebase pe save karega
 
-        // Event listener for Save Changes button
-        saveChangesBtn.addEventListener('click', function() {
-            saveChanges();
-            alert('Changes saved successfully!');
-        });
+// Update UI
+updateCounts();
+// Re-load data in case of status changes or filtering
+let currentBoxType;
+if (modalTitle.textContent.includes('Sold Accounts')) {
+    currentBoxType = 'sold';
+} else if (modalTitle.textContent.includes('Available Accounts')) {
+    currentBoxType = 'available';
+} else {
+    currentBoxType = 'all'; // Default to all if not specific modal
+}
+loadData(currentBoxType); // Reload table with updated data
+
         
         // Select All Checkbox functionality
         selectAllAccountsCheckbox.addEventListener('change', function() {
@@ -1425,8 +1420,9 @@ async function loadDataOnline() {
                 accounts = accounts.filter(account => !selectedIds.includes(account.id));
                 soldAccounts = soldAccounts.filter(account => !selectedIds.includes(account.id));
                 
-                saveData();
-                updateCounts();
+saveDataOnline();   // ✅ Firebase me save hoga
+updateCounts();
+
                 // Determine current box type from modal title
                 let currentBoxType;
                 if (modalTitle.textContent.includes('Sold Accounts')) {
@@ -1463,10 +1459,11 @@ async function loadDataOnline() {
                     }
                 });
                 
-                saveData();
-                updateCounts();
-                loadData('sold'); // Reload sold accounts
-                alert('Selected accounts moved back to Available.');
+                saveDataOnline();   // ✅ Firebase
+updateCounts();
+loadData('sold'); // Reload sold accounts
+alert('Selected accounts moved back to Available.');
+                
             }
         });
 
@@ -1519,27 +1516,28 @@ async function loadDataOnline() {
                         }
                     });
                     
-                    // Save to localStorage
-                    saveData();
+                  // Save to Firebase
+saveDataOnline();
+
                     
                     // Update UI
                     // Determine current box type from modal title
-                    let currentBoxType;
-                    if (modalTitle.textContent.includes('Sold Accounts')) {
-                        currentBoxType = 'sold';
-                    } else if (modalTitle.textContent.includes('Available Accounts')) {
-                        currentBoxType = 'available';
-                    } else {
-                        currentBoxType = 'all'; // Default
-                    }
-                    loadData(currentBoxType);
-                    updateCounts();
-                    
-                    alert('Excel file imported successfully!');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
+let currentBoxType;
+if (modalTitle.textContent.includes('Sold Accounts')) {
+    currentBoxType = 'sold';
+} else if (modalTitle.textContent.includes('Available Accounts')) {
+    currentBoxType = 'available';
+} else {
+    currentBoxType = 'all'; // Default
+}
+loadData(currentBoxType);
+updateCounts();
+
+// ✅ Save imported data to Firebase
+saveDataOnline();
+
+alert('Excel file imported successfully!');
+
         
         // Export to Excel
         exportExcelBtn.addEventListener('click', function() {
